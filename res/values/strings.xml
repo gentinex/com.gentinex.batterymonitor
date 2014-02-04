@@ -7,4 +7,5 @@
     <string name="high_bar">High</string>
     <string name="low_bar">Low</string>
     <string name="limit_file_name">JomyBatteryLimit</string>
+    <string name="low_counter">LowCounter</string>
 </resources>

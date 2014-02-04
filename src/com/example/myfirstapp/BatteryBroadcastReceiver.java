@@ -21,6 +21,7 @@ public class BatteryBroadcastReceiver extends BroadcastReceiver {
 		String highLimitField = context.getResources().getString(R.string.high_level);
 		String lowLimitField = context.getResources().getString(R.string.low_level);
 		String limitFileName = context.getResources().getString(R.string.limit_file_name);
+		String lowCounterField = context.getResources().getString(R.string.low_counter);
 	    SharedPreferences settings = context.getSharedPreferences(limitFileName, 0);
 
 		IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
@@ -30,10 +31,25 @@ public class BatteryBroadcastReceiver extends BroadcastReceiver {
 	    int batteryPct = (int) (100 * level / (float) scale);
 		int highLimit = settings.getInt(highLimitField, 100);
 		int lowLimit = settings.getInt(lowLimitField, 0);
+		boolean hitLowLimit = false;
+		if(batteryPct < lowLimit){
+        	int lowCounter = settings.getInt(lowCounterField, 0);
+        	if (lowCounter == 0){
+        		hitLowLimit = true;
+        		lowCounter = 5;
+        	}
+
+        	lowCounter = lowCounter - 1;
+        	SharedPreferences.Editor editor = settings.edit();
+            editor.putInt(lowCounterField, lowCounter);
+            editor.commit();
+        }
 
         int plugged = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
         boolean isPluggedIn = plugged == BatteryManager.BATTERY_PLUGGED_AC || plugged == BatteryManager.BATTERY_PLUGGED_USB;
-        if(((batteryPct > highLimit) && isPluggedIn) || (batteryPct < lowLimit)){
+        boolean hitHighLimit = (batteryPct > highLimit) && isPluggedIn; 
+
+        if(hitHighLimit || hitLowLimit){
 		    Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 			v.vibrate(500);
 	    }
@@ -44,8 +60,8 @@ public class BatteryBroadcastReceiver extends BroadcastReceiver {
 		    PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, intent2, 0);
 		    AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		    alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
-			        AlarmManager.INTERVAL_FIFTEEN_MINUTES / 3,
-			        AlarmManager.INTERVAL_FIFTEEN_MINUTES / 3,
+			        AlarmManager.INTERVAL_FIFTEEN_MINUTES / 15,
+			        AlarmManager.INTERVAL_FIFTEEN_MINUTES / 15,
 			        alarmIntent);
 		}
     }
