@@ -51,7 +51,7 @@ public class BatteryBroadcastReceiver extends BroadcastReceiver {
 
         if(hitHighLimit || hitLowLimit){
 		    Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-			v.vibrate(500);
+			v.vibrate(new long[] {250, 500, 250, 500, 250, 500}, -1);
 	    }
 
 		if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
