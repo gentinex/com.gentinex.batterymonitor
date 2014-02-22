@@ -32,9 +32,11 @@ public class BatteryBroadcastReceiver extends BroadcastReceiver {
 		int highLimit = settings.getInt(highLimitField, 100);
 		int lowLimit = settings.getInt(lowLimitField, 0);
 		boolean hitLowLimit = false;
+        int plugged = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        boolean isPluggedIn = plugged == BatteryManager.BATTERY_PLUGGED_AC || plugged == BatteryManager.BATTERY_PLUGGED_USB;
 		if(batteryPct < lowLimit){
         	int lowCounter = settings.getInt(lowCounterField, 0);
-        	if (lowCounter == 0){
+        	if (lowCounter == 0 && !isPluggedIn){
         		hitLowLimit = true;
         		lowCounter = 5;
         	}
@@ -45,8 +47,6 @@ public class BatteryBroadcastReceiver extends BroadcastReceiver {
             editor.commit();
         }
 
-        int plugged = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
-        boolean isPluggedIn = plugged == BatteryManager.BATTERY_PLUGGED_AC || plugged == BatteryManager.BATTERY_PLUGGED_USB;
         boolean hitHighLimit = (batteryPct > highLimit) && isPluggedIn; 
 
         if(hitHighLimit || hitLowLimit){
