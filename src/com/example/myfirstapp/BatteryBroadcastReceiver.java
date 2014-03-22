@@ -36,12 +36,12 @@ public class BatteryBroadcastReceiver extends BroadcastReceiver {
         boolean isPluggedIn = plugged == BatteryManager.BATTERY_PLUGGED_AC || plugged == BatteryManager.BATTERY_PLUGGED_USB;
 		if(batteryPct < lowLimit){
         	int lowCounter = settings.getInt(lowCounterField, 0);
-        	if (lowCounter == 0 && !isPluggedIn){
-        		hitLowLimit = true;
+        	if (lowCounter == 0){
+        		hitLowLimit = !isPluggedIn;
         		lowCounter = 5;
         	}
 
-        	lowCounter = lowCounter - 1;
+        	lowCounter = Math.max(0, lowCounter - 1);
         	SharedPreferences.Editor editor = settings.edit();
             editor.putInt(lowCounterField, lowCounter);
             editor.commit();
